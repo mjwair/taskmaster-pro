@@ -1,5 +1,6 @@
 var tasks = {};
 
+
 var createTask = function(taskText, taskDate, taskList) {
     // create elements that make up a task item
     var taskLi = $("<li>").addClass("list-group-item");
@@ -124,6 +125,7 @@ $(".list-group").on("click", "span", function() {
         $(this).replaceWith(taskSpan);
     })
 });
+
 // modal was triggered
 $("#task-form-modal").on("show.bs.modal", function() {
     // clear values
@@ -169,3 +171,63 @@ $("#remove-tasks").on("click", function() {
 
 // load tasks for the first time
 loadTasks();
+$(".card .list-group").sortable({
+    connectWith: $(".card .list-group"),
+    scroll: false,
+    tolerance: "pointer",
+    helper: "clone",
+    activate: function(event) {
+        console.log("activate", this);
+    },
+    deactivate: function(event) {
+        console.log("deactivate", this);
+    },
+    over: function(event) {
+        console.log("over", event.target);
+    },
+    out: function(event) {
+        console.log("out", event.target);
+    },
+    update: function(event) {
+        //array to store the task data in 
+        var tempArry = [];
+        // loop over current set of children in sortable list
+        $(this).children().each(function() {
+                var text = $(this)
+                    .find("p")
+                    .text
+                    .trim;
+                var date = $(this)
+                    .find("span")
+                    .text()
+                    .trim
+                    // add task data to the temp array as an object
+                tempArry.push({
+                    text: text,
+                    date: date
+                })
+
+            })
+            //trim down list' id to math object property
+        var arrName = $(this)
+            .attr("id")
+            .replace("list-", "")
+            //update array on tasks object and save
+        tasks[arrName] = tempArry;
+        saveTasks();
+    }
+});
+$("#trash").droppable({
+    accept: ".card .list-group-item",
+    tolerance: "touch",
+    drop: function(event, ui) {
+        console.log("drop");
+        ui.draggable.remove();
+    },
+    over: function(event, ui) {
+        console.log("over");
+    },
+    out: function(event, ui) {
+        console.log("out");
+    }
+});
